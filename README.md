@@ -1,3 +1,3 @@
 ****Discord Bot****
 
-A personal alrounder discord bot which **used** to work.
+A personal all rounder discord bot which **used** to work.
