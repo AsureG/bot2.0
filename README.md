@@ -2,4 +2,4 @@
 
 Made using [Nextcord](https://docs.nextcord.dev/en/stable/).
 
-**Note that some parts fot eh bot doesnt work.**
+**Note that some parts of the bot doesnt work.**
