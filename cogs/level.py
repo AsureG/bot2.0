@@ -2,10 +2,11 @@ from http import client
 import nextcord
 from nextcord.ext import commands
 import json
-import discord
+
+from Bot2.main import add_experience, level_up, update_data
 
 class level(commands.Cog):
-  def init(self, bot):
+  def __init__(self, bot):
     self.bot = bot
 
    

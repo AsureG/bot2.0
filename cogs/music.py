@@ -2,7 +2,6 @@ from http import client
 import nextcord
 from nextcord.ext import commands
 import wavelink
-from wavelink.ext import spotify
 
 class music(commands.Cog):
   def __init__(self, bot):
@@ -32,7 +31,7 @@ class music(commands.Cog):
 
   
   @commands.command()
-  async def play(self, ctx: commands.Context, *, search: wavelink.YouTubeTrack):
+  async def play(self, ctx: commands.Context, *, search: wavelink):
       if not ctx.voice_client:
           vc: wavelink.Player = await       ctx.author.voice.channel.connect(cls=wavelink.Player)
       elif not getattr(ctx.author.voice, "channel", None):
