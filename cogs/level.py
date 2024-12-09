@@ -2,69 +2,20 @@ import os
 from http import client
 import nextcord
 from nextcord.ext import commands
-from nextcord import integrations
 import json
 
-
-from main import add_experience, level_up, update_data, userData
+from main import userData,Server_ID
 
 class level(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
 
-   
-  @commands.Cog.listener()
-  async def on_member_join(self, member):
-    with open(userData, 'r') as f:
-        users = json.load(f)
-    await update_data(users, member)
-    with open(userData, 'w') as f:
-         json.dump(users, f, indent=4)
-  
-  
-  @commands.Cog.listener()
-  async def on_message(self, message):
-    if message.author.bot == False:
-        with open(userData, 'r') as f:
-            users=json.load(f)
-        await update_data(users, message.author)
-        await add_experience(users, message.author, 2)
-        await level_up(users, message.author, message)
-        with open(userData, 'w') as f:
-            json.dump(users, f, indent=4)
-    await self.bot.process_commands(message)
-  
-  
-  async def update_data(self, users, user):
-    if not f'{user.id}' in users:
-        users[f'{user.id}'] = {}
-        users[f'{user.id}']['experience'] = 0
-        users[f'{user.id}']['level'] = 1
-  
-  
-  async def add_experience(self, users, user, exp):
-    users[f'{user.id}']['experience'] += exp
-  
-  
-  async def level_up(self, users, user, message):
-    with open('levels.json', 'r') as g:
-      levels = json.load(g)
-    experience = users[f'{user.id}']['experience']
-    lvl_start = users[f'{user.id}']['level']
-    lvl_end = int(experience ** (1 / 4))
-    if lvl_start < lvl_end:
-        memberAvatar = user.avatar.url
-        embed = nextcord.Embed(title="Level up", description=f'{user.mention} has leveled up to level {lvl_end}'.format(user.mention, lvl_end))
-        embed.set_thumbnail(url = memberAvatar)
-        await message.channel.send(embed=embed)
-        users[f'{user.id}']['level'] = lvl_end
-
-
-  @nextcord.slash_command(description="Shows your level.", guild_ids=[650256982200156172])
-  async def level(self, interaction: nextcord.Interaction, member: nextcord.Member): 
+  @nextcord.slash_command(description="Shows your level.", guild_ids=Server_ID)
+  async def level(self, interaction: nextcord.Interaction, member: nextcord.Member = None): 
     if member == None:
       member = interaction.user
-      id = interaction.user.id
+      
+    id = interaction.user.id
     
     with open(userData, 'r') as f:
        users = json.load(f)
@@ -78,8 +29,8 @@ class level(commands.Cog):
     await interaction.response.send_message(embed=embed)
 
 
-  @nextcord.slash_command(description="Sets level of the user.", guild_ids=[650256982200156172])
-  async def setlvl(self, interaction: nextcord.Interaction, member: nextcord.Member, Level: int = 1):
+  @nextcord.slash_command(name="setlevel", description="Sets level of the user.", guild_ids=Server_ID)
+  async def setlvl(self, interaction: nextcord.Interaction, member: nextcord.Member, level: int):
     if member == None:
       member = interaction.user
     
@@ -92,7 +43,7 @@ class level(commands.Cog):
       await interaction.response.send_message(f"{member.mention} has no level data yet.", ephemeral=True)
       return
     
-    users[str(id)]['level'] = Level
+    users[str(id)]['level'] = level
     new_lvl = users[str(id)]['level']
 
     with open(userData, 'w') as f:
@@ -106,7 +57,7 @@ class level(commands.Cog):
     await interaction.response.send_message(embed=embed)
     
   
-  @nextcord.slash_command(description="Sets level of the user.", guild_ids=[650256982200156172])
+  @nextcord.slash_command(name="resetlevel", description="resets level of the user.", guild_ids=Server_ID)
   async def resetlvl(self, interaction: nextcord.Interaction, member: nextcord.Member):
     if member == None:
       member = interaction.user

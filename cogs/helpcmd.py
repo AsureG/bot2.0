@@ -1,11 +1,12 @@
 import nextcord
 from nextcord.ext import commands
+from main import Server_ID
 
 class helpcmd(commands.Cog):
   def __init__(self, bot):
       self.bot = bot
 
-  @nextcord.slash_command(description="Lists commands", guild_ids=[650256982200156172])
+  @nextcord.slash_command(description="Lists commands", guild_ids=Server_ID)
   async def help(self, ctx):
     embed = nextcord.Embed()
   

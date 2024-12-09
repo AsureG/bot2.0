@@ -3,14 +3,15 @@ import nextcord
 from nextcord.ext import commands
 import asyncio
 import random
+from main import Server_ID
 
 
 class Giveaway(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(description="Start a Giveaway", guild_ids=[650256982200156172])
-    async def giveaway(self, interaction: nextcord.Interaction, time: str, *, prize: str):
+    @nextcord.slash_command(description="Start a Giveaway", guild_ids=Server_ID)
+    async def giveaway(self, interaction: nextcord.Interaction, time: str, prize: str):
         if not time or not prize:
             return await interaction.response.send_message(
                 "```"

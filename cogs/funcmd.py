@@ -1,25 +1,26 @@
 import nextcord
 from nextcord.ext import commands, application_checks
 import random
+from main import Server_ID
 
 class funcmd(commands.Cog):
   def __init__(self, bot):
       self.bot = bot
 
-  @nextcord.slash_command(description="Sends back Hello", guild_ids=[650256982200156172])
+  @nextcord.slash_command(description="Sends back Hello", guild_ids=Server_ID)
   async def hello(self, interaction: nextcord.Interaction, member : nextcord.Member = None):
       if member == None:
        member = interaction.user
       await interaction.response.send_message(f"Hello there {member.mention} :wave:")
 
   
-  @nextcord.slash_command(description="Repeats the message", guild_ids=[650256982200156172])
+  @nextcord.slash_command(description="Repeats the message", guild_ids=Server_ID)
   async def say(self, interaction: nextcord.Interaction, text: str):
     await interaction.response.defer()
     await interaction.channel.send(f"{text}")
   
   
-  @nextcord.slash_command(description="Check out your avatar", guild_ids=[650256982200156172])
+  @nextcord.slash_command(description="Check out your avatar", guild_ids=Server_ID)
   async def avatar(self, interaction: nextcord.Interaction, member : nextcord.Member = None):
     if member is None:
       member = interaction.user
@@ -29,7 +30,7 @@ class funcmd(commands.Cog):
     await interaction.response.send_message(embed = avEmbed)
   
   
-  @nextcord.slash_command(description="Change nicknames!", guild_ids=[650256982200156172])
+  @nextcord.slash_command(description="Change nicknames!", guild_ids=Server_ID)
   @application_checks.has_permissions(change_nickname=True)
   async def nick(self, interaction: nextcord.Interaction, member: nextcord.Member, nick):
       await member.edit(nick=nick)
@@ -37,7 +38,7 @@ class funcmd(commands.Cog):
       await interaction.response.send_message(embed=embed)
   
   
-  @nextcord.slash_command(name="8ball", description="Ask the question and let the ball decide!", guild_ids=[650256982200156172])
+  @nextcord.slash_command(name="8ball", description="Ask the question and let the ball decide!", guild_ids=Server_ID)
   async def _8ball(self, interaction: nextcord.Interaction, question):
       responses = ['As I see it, yes.',
                    'Yes.',
