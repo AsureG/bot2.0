@@ -28,9 +28,14 @@ py -3.10 -m pip install -U wavelink
 # How to use
 1. Download the .zip file from the release (the latest one).
 2. Unzip the file and open the main.py.
-3. Go to [Discord Portal](https://discord.com/developers/applications) and copy your bot's token. If you dont know how to [here](https://www.youtube.com/watch?v=gRhUL8zBc5w) is a video.
-4. Paste the token where it says
-   `TOKEN = " place ur token here "`.
-5. Run the main.py
+3. Go to [Discord Portal](https://discord.com/developers/applications), copy your bot's token and your server id.
+  
+   If you dont know how to hereis a video for [Token](https://www.youtube.com/watch?v=gRhUL8zBc5w) and [ID](https://www.youtube.com/watch?v=HjkRZy5d_qM).
+   
+6. Paste the token where it says TOKEN
+   `TOKEN = "testtoken123123token123"`.
+7. Paste the server id where it says Server_ID
+   `Server_ID=[1234567890]`.
+8. Run the main.py
 
 **Note that some parts of the bot doesn't work for now.**
