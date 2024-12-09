@@ -1,9 +1,12 @@
+import os
 from http import client
 import nextcord
 from nextcord.ext import commands
+from nextcord import integrations
 import json
 
-from Bot2.main import add_experience, level_up, update_data
+
+from main import add_experience, level_up, update_data, userData
 
 class level(commands.Cog):
   def __init__(self, bot):
@@ -12,24 +15,24 @@ class level(commands.Cog):
    
   @commands.Cog.listener()
   async def on_member_join(self, member):
-    with open('users.json', 'r') as f:
+    with open(userData, 'r') as f:
         users = json.load(f)
     await update_data(users, member)
-    with open('users.json', 'w') as f:
+    with open(userData, 'w') as f:
          json.dump(users, f, indent=4)
   
   
   @commands.Cog.listener()
   async def on_message(self, message):
     if message.author.bot == False:
-        with open('users.json', 'r') as f:
+        with open(userData, 'r') as f:
             users=json.load(f)
         await update_data(users, message.author)
         await add_experience(users, message.author, 2)
         await level_up(users, message.author, message)
-        with open('users.json', 'w') as f:
+        with open(userData, 'w') as f:
             json.dump(users, f, indent=4)
-    await client.process_commands(message)
+    await self.bot.process_commands(message)
   
   
   async def update_data(self, users, user):
@@ -57,56 +60,79 @@ class level(commands.Cog):
         users[f'{user.id}']['level'] = lvl_end
 
 
-  @commands.command(aliases=['level'])
-  async def lvl(self, ctx, member: nextcord.Member = None): 
+  @nextcord.slash_command(description="Shows your level.", guild_ids=[650256982200156172])
+  async def level(self, interaction: nextcord.Interaction, member: nextcord.Member): 
     if member == None:
-      member = ctx.author
-      id = ctx.message.author.id
-      with open('users.json', 'r') as f:
-         users = json.load(f)
-      lvl = users[str(id)]['level']
-      memberAvatar = member.avatar.url
-      embed = nextcord.Embed(title="Levels", description=f'{member.mention} is at level {lvl}!')
-      embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
-      embed.set_thumbnail(url = memberAvatar)
-      await ctx.send(embed=embed)
-    else:
-      id = member.id
-      with open('users.json', 'r') as f:
-          users = json.load(f)
-      lvl = users[str(id)]['level']
-      memberAvatar = member.avatar.url
-      embed = nextcord.Embed(title="Levels", description=f'{member.mention} is at level {lvl}!')
-      embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
-      embed.set_thumbnail(url = memberAvatar)
-      await ctx.send(embed=embed)
+      member = interaction.user
+      id = interaction.user.id
+    
+    with open(userData, 'r') as f:
+       users = json.load(f)
+    
+    lvl = users[str(id)]['level']
+    
+    memberAvatar = member.display_avatar.url
+    embed = nextcord.Embed(title="Levels", description=f'{member.mention} is at level {lvl}!')
+    embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
+    embed.set_thumbnail(url = memberAvatar)
+    await interaction.response.send_message(embed=embed)
 
 
-  @commands.command(aliases=['lvlset'])
-  async def setlvl(self, ctx, member: nextcord.Member = None):
+  @nextcord.slash_command(description="Sets level of the user.", guild_ids=[650256982200156172])
+  async def setlvl(self, interaction: nextcord.Interaction, member: nextcord.Member, Level: int = 1):
     if member == None:
-      member = ctx.author
-      id = ctx.message.author.id
-      with open('users.json', 'r') as f:
-         users = json.load(f)
-      lvl = users[str(id)]['level']
-      lvl + 10
-      memberAvatar = member.avatar.url
-      embed = nextcord.Embed(title="Levels", description=f'{member.mention} is at level {lvl} now!')
-      embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
-      embed.set_thumbnail(url = memberAvatar)
-      await ctx.send(embed=embed)
-    else:
-      id = member.id
-      with open('users.json', 'r') as f:
-        users = json.load(f)
-      lvl = users[str(id)]['level']
-      lvl + 10
-      memberAvatar = member.avatar.url
-      embed = nextcord.Embed(title="Levels", description=f'{member.mention} is at level {lvl} now!')
-      embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
-      embed.set_thumbnail(url = memberAvatar)
-      await ctx.send(embed=embed)
+      member = interaction.user
+    
+    id = str(member.id)
+      
+    with open(userData, 'r') as f:
+      users = json.load(f)
+    
+    if id not in users:
+      await interaction.response.send_message(f"{member.mention} has no level data yet.", ephemeral=True)
+      return
+    
+    users[str(id)]['level'] = Level
+    new_lvl = users[str(id)]['level']
+
+    with open(userData, 'w') as f:
+      json.dump(users, f, indent=4)
+    
+    memberAvatar = member.display_avatar.url
+    embed = nextcord.Embed(title="Levels", description=f'{member.mention} is at level {new_lvl} now!')
+    embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
+    embed.set_thumbnail(url = memberAvatar)
+      
+    await interaction.response.send_message(embed=embed)
+    
+  
+  @nextcord.slash_command(description="Sets level of the user.", guild_ids=[650256982200156172])
+  async def resetlvl(self, interaction: nextcord.Interaction, member: nextcord.Member):
+    if member == None:
+      member = interaction.user
+    
+    id = str(member.id)
+      
+    with open(userData, 'r') as f:
+      users = json.load(f)
+    
+    if id not in users:
+      await interaction.response.send_message(f"{member.mention} has no level data yet.")
+      return
+    
+    users[str(id)]['experience'] = 0
+    users[str(id)]['level'] = 0
+    new_lvl = users[str(id)]['level']
+
+    with open(userData, 'w') as f:
+      json.dump(users, f, indent=4)
+    
+    memberAvatar = member.display_avatar.url
+    embed = nextcord.Embed(title="Levels", description=f'{member.mention} is at level {new_lvl} now!')
+    embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
+    embed.set_thumbnail(url = memberAvatar)
+      
+    await interaction.response.send_message(embed=embed)
 
 
 def setup(bot):  

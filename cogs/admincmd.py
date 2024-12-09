@@ -37,7 +37,7 @@ class admincmd(commands.Cog):
   @application_checks.bot_has_permissions(manage_messages=True)
   async def purge(self, ctx, amount: int):
     purged_message_count = await ctx.channel.purge(limit=amount)
-    await ctx.send(f"Number of Messages deleted = `{len(purged_message_count)}`")
+    await ctx.send(f"Number of Messages deleted: `{len(purged_message_count)}`")
   
   
   @nextcord.slash_command(description="Mute the user", guild_ids=[650256982200156172])
@@ -83,7 +83,7 @@ class admincmd(commands.Cog):
   @nextcord.slash_command(description="Timeout the user", guild_ids=[650256982200156172])
   @application_checks.has_permissions(kick_members=True)
   @application_checks.bot_has_permissions(kick_members=True)
-  async def timeout(ctx, member: nextcord.Member, time, *, reason: str = "no reason provided"):
+  async def timeout(self, ctx, member: nextcord.Member, time, *, reason: str = "no reason provided"):
     time = humanfriendly.parse_timespan(time)
     await member.edit(timeout = nextcord.utils.utcnow()+datetime.timedelta(seconds=time))
     dmembed = nextcord.Embed(title="Timed Out", description=f"You have been timedout from **{ctx.guild.name}**\n\nReason: **{reason}**")
@@ -94,7 +94,7 @@ class admincmd(commands.Cog):
   @nextcord.slash_command(description="Untimeout the user", guild_ids=[650256982200156172])
   @application_checks.has_permissions(kick_members=True)
   @application_checks.bot_has_permissions(kick_members=True)
-  async def untimeout(ctx, member: nextcord.Member):
+  async def untimeout(self, ctx, member: nextcord.Member):
     await member.edit(timeout = None)
     dmembed = nextcord.Embed(title="Untimed Out", description=f"You have been untimed out from **{ctx.guild.name}**")
     await member.send(embed=dmembed)

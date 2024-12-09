@@ -1,17 +1,26 @@
 # Imports
+import os
 import nextcord
 from nextcord.ext import commands
 import json
 
-# Bots
+# Bot settings
+intents = nextcord.Intents.default()
+intents.message_content = True
+TOKEN = "your-token-here"
+userData = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'IMP_FILES', 'users.json')
+
+
+# Main Bots
 client = commands.Bot(
-    command_prefix="?", 
+    command_prefix="?",
+    intents=intents,
     status=nextcord.Status.online, 
     activity = nextcord.Game(name="with ur mom (/help)")
 )
 
 client.remove_command('help')
-TOKEN = " place ur bot token here "
+TOKEN = " Your Bot's Token Here "
 
 
 # Events
@@ -34,53 +43,55 @@ async def on_guild_remove(guilds):
 
 @client.event
 async def on_member_join(member):
-    with open('users.json', 'r') as f:
+    with open(userData, 'r') as f:
         users = json.load(f)
-  
-    # await update_data(users, member)
-  
-    with open('users.json', 'w') as f:
+    await update_data(users, member)
+    with open(userData, 'w') as f:
          json.dump(users, f)
   
   
 #Levels
-# @client.event
-# async def on_message(message):
-#     if message.author.bot == False:
-#         if not os.path.exists('users.json'):
-#             with open('users.json', 'w') as f:
-#                 json.dump({}, f)
-#         with open('users.json', 'r') as f:
-#             users=json.load(f)
-#         await update_data(users, message.author)
-#         await add_experience(users, message.author, 2)
-#         await level_up(users, message.author, message)
-#         with open('users.json', 'w') as f:
-#             json.dump(users, f)
-#     await client.process_commands(message)
-  
-  
-# async def update_data(users, user):
-#     if not f'{user.id}' in users:
-#         users[f'{user.id}'] = {}
-#         users[f'{user.id}']['experience'] = 0
-#         users[f'{user.id}']['level'] = 1
-  
-  
-# async def add_experience(users, user, exp):
-#     users[f'{user.id}']['experience'] += exp
-  
 
-# async def level_up(users, user, message):
-#     experience = users[f'{user.id}']['experience']
-#     lvl_start = users[f'{user.id}']['level']
-#     lvl_end = int(experience ** (1 / 4))
-#     if lvl_start < lvl_end:
-#         memberAvatar = user.avatar_url
-#         embed = nextcord.Embed(title="Level up", description=f'{user.mention} has leveled up to level {lvl_end}'.format(user.mention, lvl_end))
-#         embed.set_thumbnail(url = memberAvatar)
-#         await message.channel.send(embed=embed)
-#         users[f'{user.id}']['level'] = lvl_end
+@client.event
+async def on_message(message):
+    if message.author.bot == False:
+        if not os.path.exists(userData):
+            with open(userData, 'w') as f:
+                json.dump({}, f)
+        with open(userData, 'r') as f:
+            users=json.load(f)
+        await update_data(users, message.author)
+        await add_experience(users, message.author, 2)
+        await level_up(users, message.author, message)
+        with open(userData, 'w') as f:
+            json.dump(users, f)
+    await client.process_commands(message)
+  
+  
+async def update_data(users, user):
+    if not f'{user.id}' in users:
+        users[f'{user.id}'] = {}
+        users[f'{user.id}']['experience'] = 0
+        users[f'{user.id}']['level'] = 1
+  
+  
+async def add_experience(users, user, exp):
+    if str(user.id) not in users:
+        users[str(user.id)] = {"experience": 0, "level": 1}
+    users[str(user.id)]['experience'] += 1
+
+
+async def level_up(users, user, message):
+    experience = users[f'{user.id}']['experience']
+    lvl_start = users[f'{user.id}']['level']
+    lvl_end = int(experience ** (1 / 4))
+    
+    if lvl_start < lvl_end:
+        memberAvatar = user.display_avatar.url
+        embed = nextcord.Embed(title="Level up", description=f'{user.mention} has leveled up to level {lvl_end}'.format(user.mention, lvl_end))
+        embed.set_thumbnail(url = memberAvatar)
+        await message.channel.send(embed=embed)
+        users[f'{user.id}']['level'] = lvl_end
 
 
 # slash Commands
@@ -89,13 +100,15 @@ async def ping(ctx):
     await ctx.send(f"Pong! (`{round(client.latency*1000)}ms` latency)")
 
 
-extensions = ['cogs.admincmd', 'cogs.funcmd', 'cogs.giveaway', 'cogs.helpcmd']
+extensions = ['cogs.admincmd', 'cogs.funcmd', 'cogs.giveaway', 'cogs.helpcmd', 'cogs.level']
 
-for ext in extensions:
-    try:
-        client.load_extension(ext)
-        print(f"Loaded {ext} successfully!")
-    except Exception as e:
-        print(f"Failed to load extension {ext}: {e}")
+if not hasattr(client, "_extensions_loaded"):
+    client._extensions_loaded = True
+    for ext in extensions:
+        try:
+            client.load_extension(ext)
+            print(f"Loaded {ext} successfully!")
+        except Exception as e:
+            print(f"Failed to load extension {ext}: {e}")
 
 client.run(TOKEN)
