@@ -2,11 +2,11 @@ import nextcord
 from nextcord.ext import commands
 from main import Server_ID
 
-class helpcmd(commands.Cog):
+class slashhelpcmd(commands.Cog):
   def __init__(self, bot):
       self.bot = bot
-    
-  @commands.command()
+
+  @nextcord.slash_command(description="Lists commands", guild_ids=Server_ID)
   async def help(self, ctx):
     embed = nextcord.Embed()
     embed.set_author(name='Fun cmds')
@@ -19,7 +19,8 @@ class helpcmd(commands.Cog):
     embed.add_field(name='.8ball {qustion}', value="8ball will reply to ur question", inline=False)
     await ctx.send(embed=embed)
     
-  @commands.command()
+    
+  @nextcord.slash_command(description="Lists commands", guild_ids=Server_ID)
   async def adminhelp(self, ctx):
     embed = nextcord.Embed()
     embed.set_author(name='Admin cmds')
@@ -36,4 +37,4 @@ class helpcmd(commands.Cog):
 
 
 def setup(bot):
-  bot.add_cog(helpcmd(bot))
+  bot.add_cog(slashhelpcmd(bot))

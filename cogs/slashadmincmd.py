@@ -2,15 +2,16 @@ import nextcord
 import datetime
 import humanfriendly
 from nextcord.ext import commands
+from nextcord.ext import application_checks
 from main import Server_ID
 
-class admincmd(commands.Cog):
+class slashadmincmd(commands.Cog):
   def __init__(self, bot):
       self.bot = bot
 
-  @commands.command()
-  @commands.has_permissions(kick_members=True)
-  @commands.bot_has_permissions(kick_members=True)
+  @nextcord.slash_command(description="Kick a member", guild_ids=Server_ID)
+  @application_checks.has_permissions(kick_members=True)
+  @application_checks.bot_has_permissions(kick_members=True)
   async def kick(self, ctx, member: nextcord.Member, *, reason: str = "no reason provided"):
     guild = ctx.guild
     await member.kick(reason=reason)
@@ -20,9 +21,9 @@ class admincmd(commands.Cog):
     await member.send(embed=dmembed)
   
 
-  @commands.command()
-  @commands.has_permissions(ban_members=True)
-  @commands.bot_has_permissions(ban_members=True)
+  @nextcord.slash_command(description="Ban a member", guild_ids=Server_ID)
+  @application_checks.has_permissions(ban_members=True)
+  @application_checks.bot_has_permissions(ban_members=True)
   async def ban(self, ctx, member: nextcord.Member, *, reason: str = "no reason provided"):
     guild = ctx.guild
     await member.ban(reason=reason)
@@ -32,17 +33,17 @@ class admincmd(commands.Cog):
     await member.send(embed=dmembed)
   
   
-  @commands.command()
-  @commands.has_permissions(manage_messages=True)
-  @commands.bot_has_permissions(manage_messages=True)
+  @nextcord.slash_command(description="Purge Messages", guild_ids=Server_ID)
+  @application_checks.has_permissions(manage_messages=True)
+  @application_checks.bot_has_permissions(manage_messages=True)
   async def purge(self, ctx, amount: int):
     purged_message_count = await ctx.channel.purge(limit=amount)
     await ctx.send(f"Number of Messages deleted: `{len(purged_message_count)}`")
   
   
-  @commands.command()
-  @commands.has_permissions(manage_messages=True)
-  @commands.bot_has_permissions(manage_messages=True)
+  @nextcord.slash_command(description="Mute the user", guild_ids=Server_ID)
+  @application_checks.has_permissions(manage_messages=True)
+  @application_checks.bot_has_permissions(manage_messages=True)
   async def mute(self, ctx, member: nextcord.Member, reason=None):
      mutedRole = nextcord.utils.get(ctx.guild.roles, name="Muted")
      if not mutedRole:
@@ -54,9 +55,9 @@ class admincmd(commands.Cog):
      await ctx.send(embed=embed)
   
   
-  @commands.command()
-  @commands.has_permissions(manage_messages=True)
-  @commands.bot_has_permissions(manage_messages=True)
+  @nextcord.slash_command(description="Mute the user", guild_ids=Server_ID)
+  @application_checks.has_permissions(manage_messages=True)
+  @application_checks.bot_has_permissions(manage_messages=True)
   async def unmute(self, ctx, member: nextcord.Member):
      mutedRole = nextcord.utils.get(ctx.guild.roles, name="Muted")
      await member.remove_roles(mutedRole)
@@ -66,9 +67,9 @@ class admincmd(commands.Cog):
      await ctx.send(embed=embed)
   
   
-  @commands.command()
-  @commands.has_permissions(ban_members=True)
-  @commands.bot_has_permissions(ban_members=True)
+  @nextcord.slash_command(description="Unban the user", guild_ids=Server_ID)
+  @application_checks.has_permissions(ban_members=True)
+  @application_checks.bot_has_permissions(ban_members=True)
   async def unban(self, ctx, *,member):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split('#')
@@ -80,9 +81,9 @@ class admincmd(commands.Cog):
        await ctx.send(embed=embed)
 
 
-  # @commands.command(description="Timeout the user", guild_ids=Server_ID)
-  # @commands.has_permissions(kick_members=True)
-  # @commands.bot_has_permissions(kick_members=True)
+  # @nextcord.slash_command(description="Timeout the user", guild_ids=Server_ID)
+  # @application_checks.has_permissions(kick_members=True)
+  # @application_checks.bot_has_permissions(kick_members=True)
   # async def timeout(self, ctx, member: nextcord.Member, time, *, reason: str = "no reason provided"):
   #   time = humanfriendly.parse_timespan(time)
   #   await member.edit(timeout = nextcord.utils.utcnow()+datetime.timedelta(seconds=time))
@@ -91,9 +92,9 @@ class admincmd(commands.Cog):
   #   embed = nextcord.Embed(title="Timed Out", description=f"**{member.mention}** has been timedout:mute:\n\n__**Reason**__: {reason}")
   #   await ctx.send(embed=embed)
 
-  # @commands.command(description="Untimeout the user", guild_ids=Server_ID)
-  # @commands.has_permissions(kick_members=True)
-  # @commands.bot_has_permissions(kick_members=True)
+  # @nextcord.slash_command(description="Untimeout the user", guild_ids=Server_ID)
+  # @application_checks.has_permissions(kick_members=True)
+  # @application_checks.bot_has_permissions(kick_members=True)
   # async def untimeout(self, ctx, member: nextcord.Member):
   #   await member.edit(timeout = None)
   #   dmembed = nextcord.Embed(title="Untimed Out", description=f"You have been untimed out from **{ctx.guild.name}**")
@@ -120,13 +121,6 @@ class admincmd(commands.Cog):
       embed.add_field(name='.ban @{user} {reason}', value="Helps admins to ban user", inline=False)
       await ctx.send(embed=embed)
 
-  @unban.error
-  async def unban_error(self, ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-      embed = nextcord.Embed()
-      embed.set_author(name='Invalid Format')
-      embed.add_field(name='.unban @{user}', value="Helps admins to unban user", inline=False)
-      await ctx.send(embed=embed)
 
   @purge.error
   async def purge_error(self, ctx, error):
@@ -156,4 +150,4 @@ class admincmd(commands.Cog):
 
 
 def setup(bot):
-  bot.add_cog(admincmd(bot))
+  bot.add_cog(slashadmincmd(bot))

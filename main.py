@@ -7,8 +7,8 @@ import json
 # Bot settings
 intents = nextcord.Intents.default()
 intents.message_content = True
-Server_ID=["PUT UR SERVER ID HERE BY REMOVE QUOTES"]
-TOKEN = " PUT UR BOT TOKEN HERE INSIDE THE QUOTES "
+Server_ID=[1234567890]
+TOKEN = "testtoken123123token123"
 userData = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'IMP_FILES', 'users.json')
 
 
@@ -107,7 +107,17 @@ async def ping(ctx):
 
 
 # loading cogs
-extensions = ['cogs.admincmd', 'cogs.funcmd', 'cogs.giveaway', 'cogs.helpcmd', 'cogs.level']
+extensions = [
+    'cogs.admincmd',
+    'cogs.slashadmincmd',
+    'cogs.funcmd',
+    'cogs.slashfuncmd',
+    'cogs.giveaway',
+    'cogs.slashgiveaway',
+    'cogs.helpcmd',
+    'cogs.slashhelpcmd',
+    'cogs.level',
+    'cogs.slashlevel']
 
 for ext in extensions:
     try:

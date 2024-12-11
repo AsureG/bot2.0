@@ -6,18 +6,18 @@ import json
 
 from main import userData,Server_ID
 
-class level(commands.Cog):
+class slashlevel(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-    
-    
-  #prefix command
-  @commands.command()
-  async def level(self, ctx, member: nextcord.Member = None): 
+
+  
+  #slash command
+  @nextcord.slash_command(description="Shows your level.", guild_ids=Server_ID)
+  async def level(self, interaction: nextcord.Interaction, member: nextcord.Member = None): 
     if member == None:
-      member = ctx.author
+      member = interaction.user
       
-    id = member.id
+    id = interaction.user.id
     
     with open(userData, 'r') as f:
        users = json.load(f)
@@ -28,15 +28,15 @@ class level(commands.Cog):
     embed = nextcord.Embed(title="Levels", description=f'{member.mention} is at level {lvl}!')
     embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
     embed.set_thumbnail(url = memberAvatar)
-    await ctx.send(embed=embed)
+    await interaction.response.send_message(embed=embed)
 
-  
-  @commands.command()
-  @commands.has_permissions(administrator=True)
-  @commands.bot_has_permissions(administrator=True)
-  async def setlvl(self, ctx, member: nextcord.Member, level: int):
+
+  @nextcord.slash_command(name="setlevel", description="Sets level of the user.", guild_ids=Server_ID)
+  @application_checks.has_permissions(administrator=True)
+  @application_checks.bot_has_permissions(administrator=True)
+  async def setlvl(self, interaction: nextcord.Interaction, member: nextcord.Member, level: int):
     if member == None:
-      member = ctx.user
+      member = interaction.user
     
     id = str(member.id)
       
@@ -44,7 +44,7 @@ class level(commands.Cog):
       users = json.load(f)
     
     if id not in users:
-      await ctx.send(f"{member.mention} has no level data yet.", ephemeral=True)
+      await interaction.response.send_message(f"{member.mention} has no level data yet.", ephemeral=True)
       return
     
     users[str(id)]['level'] = level
@@ -58,15 +58,15 @@ class level(commands.Cog):
     embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
     embed.set_thumbnail(url = memberAvatar)
       
-    await ctx.send(embed=embed)
+    await interaction.response.send_message(embed=embed)
     
-    
-  @commands.command()
-  @commands.has_permissions(administrator=True)
-  @commands.bot_has_permissions(administrator=True)
-  async def resetlvl(self, ctx, member: nextcord.Member):
+  
+  @nextcord.slash_command(name="resetlevel", description="resets level of the user.", guild_ids=Server_ID)
+  @application_checks.has_permissions(administrator=True)
+  @application_checks.bot_has_permissions(administrator=True)
+  async def resetlvl(self, interaction: nextcord.Interaction, member: nextcord.Member):
     if member == None:
-      member = ctx.user
+      member = interaction.user
     
     id = str(member.id)
       
@@ -74,7 +74,7 @@ class level(commands.Cog):
       users = json.load(f)
     
     if id not in users:
-      await ctx.send(f"{member.mention} has no level data yet.")
+      await interaction.response.send_message(f"{member.mention} has no level data yet.")
       return
     
     users[str(id)]['experience'] = 0
@@ -89,25 +89,7 @@ class level(commands.Cog):
     embed.set_author(name=f"{member.name}", icon_url=memberAvatar)
     embed.set_thumbnail(url = memberAvatar)
       
-    await ctx.send(embed=embed)
-    
-  #Errors
-
-  @resetlvl.error
-  async def unmute_error(self, ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-      embed = nextcord.Embed()
-      embed.set_author(name='Invalid Format')
-      embed.add_field(name='.resetlvl @{user}', value="Helps admins to reset someone's levels", inline=False)
-      await ctx.send(embed=embed)
-      
-  @setlvl.error
-  async def unmute_error(self, ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-      embed = nextcord.Embed()
-      embed.set_author(name='Invalid Format')
-      embed.add_field(name='.setlvl @{user} {amount}', value="Helps admins to set someone's levels", inline=False)
-      await ctx.send(embed=embed)
+    await interaction.response.send_message(embed=embed)
 
 def setup(bot):  
-  bot.add_cog(level(bot))
+  bot.add_cog(slashlevel(bot))

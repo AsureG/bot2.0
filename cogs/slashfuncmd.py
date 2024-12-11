@@ -3,42 +3,43 @@ from nextcord.ext import commands, application_checks
 import random
 from main import Server_ID
 
-class funcmd(commands.Cog):
+class slashfuncmd(commands.Cog):
   def __init__(self, bot):
       self.bot = bot
 
-  @commands.command()
-  async def hello(self, ctx, member : nextcord.Member = None):
+  @nextcord.slash_command(description="Sends back Hello", guild_ids=Server_ID)
+  async def hello(self, interaction: nextcord.Interaction, member : nextcord.Member = None):
       if member == None:
-       member = ctx.author
-      await ctx.send(f"Hello there {member.mention} :wave:")
+       member = interaction.user
+      await interaction.response.send_message(f"Hello there {member.mention} :wave:")
 
   
-  @commands.command()
-  async def say(self, ctx, text: str):
-    await ctx.send(f"{text}")
+  @nextcord.slash_command(description="Repeats the message", guild_ids=Server_ID)
+  async def say(self, interaction: nextcord.Interaction, text: str):
+    await interaction.response.defer()
+    await interaction.channel.send(f"{text}")
   
   
-  @commands.command()
-  async def avatar(self, ctx, member : nextcord.Member = None):
+  @nextcord.slash_command(description="Check out your avatar", guild_ids=Server_ID)
+  async def avatar(self, interaction: nextcord.Interaction, member : nextcord.Member = None):
     if member is None:
-      member = ctx.author
+      member = interaction.user
     memberAvatar = member.display_avatar.url
     avEmbed = nextcord.Embed(title = f"{member.name}'s Avatar")
     avEmbed.set_image(url = memberAvatar)
-    await ctx.send(embed = avEmbed)
+    await interaction.response.send_message(embed = avEmbed)
   
   
-  @commands.command()
-  @commands.has_permissions(change_nickname=True)
-  async def nick(self, ctx, member: nextcord.Member, nick):
+  @nextcord.slash_command(description="Change nicknames!", guild_ids=Server_ID)
+  @application_checks.has_permissions(change_nickname=True)
+  async def nick(self, interaction: nextcord.Interaction, member: nextcord.Member, nick):
       await member.edit(nick=nick)
       embed = nextcord.Embed(description=f"Nickname was changed for {member.mention}")
-      await ctx.send(embed=embed)
+      await interaction.response.send_message(embed=embed)
   
   
-  @commands.command()
-  async def _8ball(self, ctx, question):
+  @nextcord.slash_command(name="8ball", description="Ask the question and let the ball decide!", guild_ids=Server_ID)
+  async def _8ball(self, interaction: nextcord.Interaction, question):
       responses = ['As I see it, yes.',
                    'Yes.',
                    'Positive',
@@ -59,7 +60,7 @@ class funcmd(commands.Cog):
       embed=nextcord.Embed(title="The Magic 8 Ball says!")
       embed.add_field(name='Question: ', value=f'{question}', inline=True)
       embed.add_field(name='Answer: ', value=f'{response}', inline=False)
-      await ctx.send(embed=embed)
+      await interaction.response.send_message(embed=embed)
 
   @say.error
   async def say_error(self, ctx, error):
@@ -74,4 +75,4 @@ class funcmd(commands.Cog):
   
       
 def setup(bot):
-  bot.add_cog(funcmd(bot))
+  bot.add_cog(slashfuncmd(bot))

@@ -10,10 +10,12 @@ class Giveaway(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(description="Start a Giveaway", guild_ids=Server_ID)
-    async def giveaway(self, interaction: nextcord.Interaction, time: str, prize: str):
+    @commands.command(description="Start a Giveaway", guild_ids=Server_ID)
+    @commands.has_permissions(manage_events=True)
+    @commands.bot_has_permissions(manage_events=True)
+    async def giveaway(self, ctx, time: str, prize: str):
         if not time or not prize:
-            return await interaction.response.send_message(
+            return await ctx.send(
                 "```"
                 "giveaway {time} {prize}"
                 "```"
@@ -21,7 +23,7 @@ class Giveaway(commands.Cog):
 
         embed = nextcord.Embed(
             title=' New Giveaway! ',
-            description=f"{interaction.user.mention} is giving away **{prize}**!",
+            description=f"{ctx.author.mention} is giving away **{prize}**!",
         )
         embed.set_footer(text=f"Giveaway ends in {time}")
 
@@ -29,25 +31,24 @@ class Giveaway(commands.Cog):
         try:
             gawtime = int(time[:-1]) * time_convert[time[-1].lower()]
         except (ValueError, KeyError):
-            return await interaction.response.send_message("Invalid time format! Use `s` for seconds, `m` for minutes, `h` for hours, or `d` for days.")
+            return await ctx.send("Invalid time format! Use `s` for seconds, `m` for minutes, `h` for hours, or `d` for days.")
 
-        await interaction.response.send_message(embed=embed)
-        gaw_msg = await interaction.original_message()
+        gaw_msg = await ctx.send(embed=embed)
         await gaw_msg.add_reaction("✋")
 
         await asyncio.sleep(gawtime)
 
-        new_gaw_msg = await interaction.channel.fetch_message(gaw_msg.id)
+        new_gaw_msg = await ctx.channel.fetch_message(gaw_msg.id)
         reaction = new_gaw_msg.reactions[0]
         users = await reaction.users().flatten()
 
         valid_users = [user for user in users if user.id != self.bot.user.id]
 
         if len(valid_users) < 1:
-            return await interaction.channel.send("No valid users in the giveaway!")
+            return await ctx.channel.send("No valid users in the giveaway!")
 
         winner = random.choice(valid_users)
-        await interaction.channel.send(f"Congrats {winner.mention} has won the giveaway for **{prize}**! 🎉")
+        await ctx.channel.send(f"Congrats {winner.mention} has won the giveaway for **{prize}**! 🎉")
 
 def setup(bot):
     bot.add_cog(Giveaway(bot))
